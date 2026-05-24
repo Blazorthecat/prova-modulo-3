@@ -122,4 +122,5 @@ Foram escritos **9 testes** utilizando [Mocha](https://mochajs.org/) e o módulo
 ## 👨‍💻 Autor
 
 **Gabriel Guimarães Nunes**
+---
 Desenvolvido como parte da prova avaliativa do curso **PGATS — Módulo 3**.
