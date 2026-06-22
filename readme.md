@@ -1,12 +1,15 @@
-# 💳 Prova — Módulo 3: Sistema de Pagamento com Testes
+# 💳 Prova — Módulo 3: Sistema de Pagamento com Testes e Pipeline CI
 
-Prova avaliativa do **Módulo 3** do curso PGATS.
+Prova avaliativa do **Módulo 3** do curso PGATS, com a entrega final do módulo:
+uma **pipeline de Integração Contínua (CI)** no **GitHub Actions** para um projeto
+com testes automatizados.
 
 ---
 
-## 📋 Sobre a Prova
+## 📋 Sobre o Projeto
 
-O objetivo foi construir uma classe de serviço de pagamento em JavaScript que registra pagamentos e consulta o último realizado, cobrindo os seguintes cenários:
+O projeto implementa a classe `ServicoDePagamento`, que registra pagamentos e consulta
+o último realizado, cobrindo os seguintes cenários:
 
 | Cenário                             | Comportamento esperado                                      |
 | ----------------------------------- | ----------------------------------------------------------- |
@@ -19,103 +22,124 @@ O objetivo foi construir uma classe de serviço de pagamento em JavaScript que r
 
 ---
 
-## 🧠 Pensamento Computacional
-
-O pensamento computacional aplicado nesta atividade pode ser dividido em quatro pilares:
-
-### 1. Decomposição
-
-O problema de "realizar e consultar pagamentos" foi quebrado em partes menores e independentes:
-
-- Validar se o **valor é maior que zero** antes de registrar
-- Determinar a **categoria** do pagamento com base no valor
-- **Armazenar** o pagamento em uma lista interna privada
-- **Consultar** o último elemento da lista, tratando o caso de lista vazia
-
-### 2. Reconhecimento de Padrões
-
-Percebeu-se que tanto o método `pagar` quanto o `consultarUltimoPagamento` seguem o mesmo padrão de defesa: verificam uma condição de falha e **interrompem o fluxo** com `throw new Error(...)` antes de executar a lógica principal. Isso garantiu uniformidade no tratamento de erros em toda a classe.
-
-### 3. Abstração
-
-Os pagamentos foram encapsulados em uma lista privada (`#pagamentos`) dentro da classe `ServicoDePagamento`, simulando um repositório em memória. Toda a complexidade de validação, categorização e armazenamento fica oculta de quem consome a classe, que interage apenas com dois métodos públicos.
-
-### 4. Algoritmos
-
-O fluxo de cada método segue uma sequência lógica e ordenada:
-
-**`pagar(codigoBarras, empresa, valor)`:**
-
-1. Calcular a categoria com base no valor (`> 100` → `"cara"`, caso contrário `"padrão"`)
-2. Montar o objeto de pagamento
-3. Se o valor for `<= 0` → lançar erro
-4. Adicionar o pagamento à lista interna
-
-**`consultarUltimoPagamento()`:**
-
-1. Verificar se a lista está vazia → lançar erro
-2. Retornar o último elemento da lista
-
----
-
 ## 📁 Estrutura do Projeto
 
 ```
 prova-modulo-3/
+├── .github/
+│   └── workflows/
+│       └── ci.yml                      # Pipeline de CI (GitHub Actions)
 ├── src/
-│   └── ServicoDePagamento.js   # Classe com a lógica de pagamento
+│   └── ServicoDePagamento.js           # Classe com a lógica de pagamento
 ├── test/
-│   └── ServicoDePagamento.test.js  # 9 testes com Mocha e Node:assert
+│   └── ServicoDePagamento.test.js      # 28 testes (Mocha + node:assert)
 ├── package.json
-└── package-lock.json
+├── package-lock.json
+└── readme.md
 ```
 
 ---
 
-## 🚀 Como Executar
+## 🚀 Como Executar Localmente
 
-**Pré-requisitos:** Node.js instalado.
+**Pré-requisitos:** Node.js 18+ instalado.
 
 ```bash
 # Instalar dependências
 npm install
 
 # Rodar os testes
-npx mocha
+npm test
 
-# Rodar os testes com relatótrio HTML (Mochawesome)
-npx mocha --reporter mochawesome
+# Rodar os testes gerando relatório HTML (Mochawesome)
+npm run test:report
+
+# Rodar os testes com relatório de cobertura (c8)
+npm run coverage
 ```
 
 ---
 
-## 🧪 Testes
+## 🧪 Testes Automatizados
 
-Foram escritos **9 testes** utilizando [Mocha](https://mochajs.org/) e o módulo nativo `node:assert`, organizados em dois grupos:
+A suíte possui **28 testes** (23 ativos + 5 pendentes), todos no padrão **AAA**
+(*Arrange, Action, Assert*) e comentados, organizados por **técnica de teste**:
 
-**Testes da função `pagar`:**
+- **Partição de Equivalência** — classes válidas (`"padrão"`/`"cara"`) e inválidas (zero e negativo).
+- **Análise de Valor-Limite** — fronteiras `0` e `100` e seus vizinhos (`-0.01`, `0.01`, `99.99`, `100`, `100.01`).
+- **Tabela de Decisão** — regras `R1` (erro), `R2` (padrão) e `R3` (cara), implementadas de forma *data-driven*.
+- **MC/DC** — cada decisão (`valor > 100`, `valor <= 0`, lista vazia) exercitada como Verdadeira e Falsa.
 
-1. ✅ **Dados corretos** — registra pagamento com código de barras, empresa e valor válidos
-2. ❌ **Valor inválido** — lança erro ao tentar pagar com valor zero ou negativo
-3. 💰 **Categoria "cara"** — classifica corretamente pagamentos acima de R$ 100,00
-4. 🏷️ **Categoria "padrão"** — classifica corretamente pagamentos abaixo de R$ 100,00
-5. 🎯 **Valor exato de R$ 100,00** — confirma que o limite é exclusivo (categoria `"padrão"`)
-6. 🔁 **Múltiplos pagamentos** — aceita vários pagamentos em sequência
+Os **5 testes pendentes** (`it.skip`, prefixo `[BUG-Dx]`) documentam defeitos reais de
+robustez do código (aceitação de `NaN`, `undefined` e strings; campos obrigatórios não
+validados; vazamento da referência interna). Ficam *pending* (suíte verde) com a asserção
+do comportamento **correto**, prontos como testes de regressão — basta remover o `.skip`
+quando o código de produção for corrigido.
 
-**Testes da função `consultarUltimoPagamento`:**
+> **Cobertura de código:** 100% de statements, branches, functions e lines (medido com c8/Istanbul).
 
-7. ⚠️ **Lista vazia** — lança erro quando nenhum pagamento foi registrado
-8. 🔍 **Último pagamento** — retorna corretamente o pagamento mais recente
-9. 📦 **Estrutura do objeto** — valida que o retorno possui todas as propriedades esperadas (`codigoBarras`, `empresa`, `valor`, `categoria`)
+---
+
+## ⚙️ Pipeline de Integração Contínua (GitHub Actions)
+
+O arquivo [`.github/workflows/ci.yml`](.github/workflows/ci.yml) define a pipeline.
+Ela contempla **todos os gatilhos exigidos**:
+
+| Gatilho            | Configuração            | Quando dispara                                   |
+| ------------------ | ----------------------- | ------------------------------------------------ |
+| **Push**           | `on: push`              | A cada push em qualquer branch                   |
+| **Pull Request**   | `on: pull_request`      | Em PRs direcionados à `main`                     |
+| **Manual**         | `on: workflow_dispatch` | Botão *Run workflow* na aba **Actions**          |
+| **Agendado**       | `on: schedule` (cron)   | Toda segunda-feira às `12:00 UTC` (`0 12 * * 1`) |
+
+### Etapas (steps) da pipeline
+
+1. **Checkout** do código (`actions/checkout@v4`).
+2. **Setup do Node.js 20** com cache de dependências npm (`actions/setup-node@v4`).
+3. **Instalação reprodutível** das dependências com `npm ci` (usa o `package-lock.json`).
+4. **Execução dos testes** (`npm test`) — se algum teste falhar, a pipeline falha.
+5. **Geração do relatório de testes** com Mochawesome (`npm run test:report`).
+6. **Geração do relatório de cobertura** com c8 (`npm run coverage`).
+7. **Publicação dos relatórios** como *artifact* (`actions/upload-artifact@v4`).
+
+As etapas 5–7 usam `if: always()` para que os relatórios sejam gerados e publicados
+**mesmo que algum teste falhe** — preservando a evidência de execução.
+
+### 📦 Onde encontrar o relatório
+
+Após cada execução, acesse **Actions → (execução) → Artifacts → `relatorios-de-testes`**.
+O artifact contém:
+
+- `mochawesome-report/` — relatório de testes em HTML (`mochawesome.html`) e JSON.
+- `coverage/` — relatório de cobertura em HTML (`index.html`) e `lcov.info`.
+
+---
+
+## 🧠 Conceitos Aplicados
+
+- **Integração Contínua (CI):** automatizar build, testes e relatórios a cada mudança,
+  detectando regressões cedo. Aqui, todo push aciona a verificação automática.
+- **Gatilhos de workflow:** `push`, `pull_request`, `workflow_dispatch` (manual) e
+  `schedule` (cron) — cobrindo execução reativa, sob demanda e periódica.
+- **Build reprodutível:** `npm ci` instala exatamente as versões travadas no
+  `package-lock.json`, garantindo que CI e máquina local rodem o mesmo ambiente.
+- **Cache de dependências:** acelera execuções reaproveitando o `~/.npm` entre runs.
+- **Artifacts:** mecanismo do GitHub Actions para armazenar e disponibilizar arquivos
+  gerados (os relatórios) ao final da execução.
+- **`if: always()`:** garante a coleta de evidências mesmo em caso de falha de testes.
+- **Princípio do menor privilégio:** `permissions: contents: read` limita o token do workflow.
+- **Técnicas de teste:** partição de equivalência, valor-limite, tabela de decisão e MC/DC,
+  estruturadas no padrão AAA.
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **JavaScript (ES Modules)**
-- **Node.js**
+- **JavaScript (ES Modules)** + **Node.js**
 - **Mocha** — framework de testes
-- **Mochawesome** — gerador de relatórios de testes
+- **Mochawesome** — relatório de testes em HTML/JSON
+- **c8** — relatório de cobertura de código
+- **GitHub Actions** — pipeline de Integração Contínua
 
 ---
 
