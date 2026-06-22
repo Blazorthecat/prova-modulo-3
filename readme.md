@@ -1,8 +1,27 @@
-# 💳 Prova — Módulo 3: Sistema de Pagamento com Testes e Pipeline CI
+# 💳 Sistema de Pagamento — Provas dos Módulos 3 e 4 (PGATS)
 
-Prova avaliativa do **Módulo 3** do curso PGATS, com a entrega final do módulo:
-uma **pipeline de Integração Contínua (CI)** no **GitHub Actions** para um projeto
-com testes automatizados.
+> ⚠️ **Repositório de dupla finalidade.**
+> Embora o nome seja `prova-modulo-3`, este repositório atende a **duas provas** do curso PGATS:
+>
+> | Módulo | Foco da avaliação | Onde está neste repositório |
+> | ------ | ----------------- | --------------------------- |
+> | **Módulo 3** | Testes automatizados e técnicas de teste (cobertura) | `src/`, `test/` — seção [📦 Módulo 3](#-módulo-3--testes-automatizados) |
+> | **Módulo 4** | Pipeline de Integração Contínua (CI) com GitHub Actions | `.github/workflows/ci.yml` — seção [⚙️ Módulo 4](#️-módulo-4--pipeline-de-integração-contínua-ci) |
+>
+> O mesmo projeto (`ServicoDePagamento`) é a base das duas entregas: o Módulo 3 cobre a
+> qualidade do código via testes, e o Módulo 4 automatiza a execução desses testes em uma pipeline.
+
+---
+
+## 📑 Índice
+
+- [Sobre o Projeto](#-sobre-o-projeto)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [Como Executar Localmente](#-como-executar-localmente)
+- [📦 Módulo 3 — Testes Automatizados](#-módulo-3--testes-automatizados)
+- [⚙️ Módulo 4 — Pipeline de Integração Contínua (CI)](#️-módulo-4--pipeline-de-integração-contínua-ci)
+- [Tecnologias Utilizadas](#️-tecnologias-utilizadas)
+- [Autor](#-autor)
 
 ---
 
@@ -28,11 +47,11 @@ o último realizado, cobrindo os seguintes cenários:
 prova-modulo-3/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml                      # Pipeline de CI (GitHub Actions)
+│       └── ci.yml                      # [MÓDULO 4] Pipeline de CI (GitHub Actions)
 ├── src/
-│   └── ServicoDePagamento.js           # Classe com a lógica de pagamento
+│   └── ServicoDePagamento.js           # [MÓDULO 3] Classe com a lógica de pagamento
 ├── test/
-│   └── ServicoDePagamento.test.js      # 28 testes (Mocha + node:assert)
+│   └── ServicoDePagamento.test.js      # [MÓDULO 3] 28 testes (Mocha + node:assert)
 ├── package.json
 ├── package-lock.json
 └── readme.md
@@ -60,7 +79,10 @@ npm run coverage
 
 ---
 
-## 🧪 Testes Automatizados
+# 📦 Módulo 3 — Testes Automatizados
+
+> **Entrega do Módulo 3:** suíte de testes automatizados com aplicação de técnicas de
+> teste e medição de cobertura de código.
 
 A suíte possui **28 testes** (23 ativos + 5 pendentes), todos no padrão **AAA**
 (*Arrange, Action, Assert*) e comentados, organizados por **técnica de teste**:
@@ -78,9 +100,23 @@ quando o código de produção for corrigido.
 
 > **Cobertura de código:** 100% de statements, branches, functions e lines (medido com c8/Istanbul).
 
+### 🧠 Conceitos aplicados (Módulo 3)
+
+- **Técnicas de teste de caixa-preta e caixa-branca:** partição de equivalência, análise
+  de valor-limite, tabela de decisão e MC/DC.
+- **Padrão AAA:** cada teste separa claramente *Arrange* (preparação), *Action* (execução)
+  e *Assert* (verificação).
+- **Isolamento de testes:** `beforeEach` cria uma instância nova a cada caso.
+- **Cobertura de código:** distinção entre cobertura estrutural (100%) e robustez real
+  (defeitos documentados como testes pendentes).
+
 ---
 
-## ⚙️ Pipeline de Integração Contínua (GitHub Actions)
+# ⚙️ Módulo 4 — Pipeline de Integração Contínua (CI)
+
+> **Entrega do Módulo 4:** desenvolver uma pipeline de CI com GitHub Actions para um
+> projeto com testes automatizados, contemplando execução por push, manual e agendada,
+> geração e publicação de relatório de testes.
 
 O arquivo [`.github/workflows/ci.yml`](.github/workflows/ci.yml) define a pipeline.
 Ela contempla **todos os gatilhos exigidos**:
@@ -113,9 +149,7 @@ O artifact contém:
 - `mochawesome-report/` — relatório de testes em HTML (`mochawesome.html`) e JSON.
 - `coverage/` — relatório de cobertura em HTML (`index.html`) e `lcov.info`.
 
----
-
-## 🧠 Conceitos Aplicados
+### 🧠 Conceitos aplicados (Módulo 4)
 
 - **Integração Contínua (CI):** automatizar build, testes e relatórios a cada mudança,
   detectando regressões cedo. Aqui, todo push aciona a verificação automática.
@@ -128,22 +162,22 @@ O artifact contém:
   gerados (os relatórios) ao final da execução.
 - **`if: always()`:** garante a coleta de evidências mesmo em caso de falha de testes.
 - **Princípio do menor privilégio:** `permissions: contents: read` limita o token do workflow.
-- **Técnicas de teste:** partição de equivalência, valor-limite, tabela de decisão e MC/DC,
-  estruturadas no padrão AAA.
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **JavaScript (ES Modules)** + **Node.js**
-- **Mocha** — framework de testes
-- **Mochawesome** — relatório de testes em HTML/JSON
-- **c8** — relatório de cobertura de código
-- **GitHub Actions** — pipeline de Integração Contínua
+| Categoria | Ferramenta | Usada em |
+| --------- | ---------- | -------- |
+| Linguagem | JavaScript (ES Modules) + Node.js | Módulos 3 e 4 |
+| Testes    | Mocha + `node:assert` | Módulo 3 |
+| Relatório de testes | Mochawesome (HTML/JSON) | Módulos 3 e 4 |
+| Cobertura | c8 (Istanbul) | Módulos 3 e 4 |
+| CI/CD     | GitHub Actions | Módulo 4 |
 
 ---
 
 ## 👨‍💻 Autor
 
 **Gabriel Guimarães Nunes**
-Desenvolvido como parte da prova avaliativa do curso **PGATS — Módulo 3**.
+Desenvolvido como entrega das provas avaliativas dos **Módulos 3 e 4** do curso **PGATS**.
