@@ -1,0 +1,81 @@
+# =====================================================================
+#  Pipeline de Integração Contínua (CI)
+#  Projeto: Sistema de Pagamento (ServicoDePagamento)
+#  Disciplina: PGATS - Módulo 3
+# ---------------------------------------------------------------------
+#  Esta pipeline executa os testes automatizados (Mocha), gera o
+#  relatório de testes (mochawesome) e o relatório de cobertura (c8),
+#  e publica ambos como artifacts da execução.
+# =====================================================================
+name: CI - Testes Automatizados
+
+# ---------------------------------------------------------------------
+# GATILHOS (triggers) exigidos pelo trabalho
+# ---------------------------------------------------------------------
+on:
+  # 1) Execução por PUSH em qualquer branch
+  push:
+    branches: ["**"]
+
+  # 2) Execução por PULL REQUEST direcionado à main (boa prática de CI)
+  pull_request:
+    branches: ["main"]
+
+  # 3) Execução MANUAL (botão "Run workflow" na aba Actions)
+  workflow_dispatch:
+
+  # 4) Execução AGENDADA (schedule) - toda segunda-feira às 12:00 UTC (09:00 BRT)
+  schedule:
+    - cron: "0 12 * * 1"
+
+# Permissões mínimas necessárias (princípio do menor privilégio)
+permissions:
+  contents: read
+
+jobs:
+  testes:
+    name: Testes + Relatórios
+    runs-on: ubuntu-latest
+
+    steps:
+      # ---- 1. Obter o código do repositório ----
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # ---- 2. Preparar o ambiente Node.js (com cache de dependências) ----
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      # ---- 3. Instalar dependências de forma reprodutível ----
+      - name: Instalar dependências
+        run: npm ci
+
+      # ---- 4. Executar a suíte de testes (falha a pipeline se algum teste quebrar) ----
+      - name: Executar testes automatizados
+        run: npm test
+
+      # ---- 5. Gerar o relatório de testes (mochawesome HTML + JSON) ----
+      #     `if: always()` garante a geração mesmo que algum teste falhe.
+      - name: Gerar relatório de testes (mochawesome)
+        if: ${{ always() }}
+        run: npm run test:report
+
+      # ---- 6. Gerar o relatório de cobertura de código (c8) ----
+      - name: Gerar relatório de cobertura
+        if: ${{ always() }}
+        run: npm run coverage
+
+      # ---- 7. Publicar/armazenar os relatórios como artifact da pipeline ----
+      - name: Publicar relatórios como artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorios-de-testes
+          path: |
+            mochawesome-report/
+            coverage/
+          retention-days: 30
+          if-no-files-found: error

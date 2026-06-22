@@ -1,5 +1,17 @@
 {
-  "dependencies": {
+  "name": "prova-modulo-3",
+  "version": "1.0.0",
+  "description": "Sistema de pagamento com testes automatizados (Mocha) e pipeline de CI no GitHub Actions.",
+  "type": "module",
+  "scripts": {
+    "test": "mocha",
+    "test:report": "mocha --reporter mochawesome",
+    "coverage": "c8 --reporter=text --reporter=html --reporter=lcov mocha"
+  },
+  "author": "Gabriel Guimaraes Nunes",
+  "license": "MIT",
+  "devDependencies": {
+    "c8": "^9.1.0",
     "mocha": "^8.1.3",
     "mochawesome": "^7.1.4"
   }

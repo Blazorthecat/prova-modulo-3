@@ -1,2 +1,6 @@
 node_modules
 mochawesome-report/
+coverage/
+
+# Relatorio de QA - manter fora do repositorio (uso interno)
+*.pdf
